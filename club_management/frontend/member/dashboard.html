@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Thành viên</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/member.css">
+</head>
+<body>
+  <div class="member-layout">
+    <aside class="member-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🎓</div>
+        <div class="sidebar-title">
+          Quản lý CLB
+          <small>MEMBER</small>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Menu</div>
+        <a href="dashboard.html" class="nav-item active">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <a href="profile.html" class="nav-item">
+          <span class="nav-icon">👤</span>
+          Hồ sơ
+        </a>
+        <a href="events.html" class="nav-item">
+          <span class="nav-icon">📅</span>
+          Sự kiện
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <span class="nav-icon">✅</span>
+          Điểm danh
+        </a>
+        <a href="attendance-history.html" class="nav-item">
+          <span class="nav-icon">📊</span>
+          Chuyên cần
+        </a>
+        <a href="announcements.html" class="nav-item">
+          <span class="nav-icon">📢</span>
+          Thông báo
+        </a>
+        <a href="change-password.html" class="nav-item">
+          <span class="nav-icon">🔒</span>
+          Đổi mật khẩu
+        </a>
+        <div class="nav-section">Ban của tôi</div>
+        <a href="departments/academic.html" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          Ban Học thuật
+        </a>
+        <a href="departments/operation.html" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          Ban Vận hành
+        </a>
+        <a href="departments/advisory.html" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          Ban Cố vấn
+        </a>
+        <a href="departments/executive.html" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          Ban Chủ nhiệm
+        </a>
+      </nav>
+    </aside>
+    
+    <main class="member-main">
+      <header class="member-topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle">☰</button>
+          <span class="topbar-title">Dashboard</span>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar">M</div>
+            <div class="user-info">
+              <div class="name">Thành viên</div>
+              <div class="role">MEMBER</div>
+            </div>
+            <div class="user-dropdown">
+              <a href="profile.html">Hồ sơ</a>
+              <a href="#" id="logoutBtn" class="danger">Đăng xuất</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="member-content" id="memberDashboard">
+        <div id="alertContainer"></div>
+        <div id="loadingContainer"></div>
+        
+        <div class="dashboard-welcome">
+          <h2>Xin chào, <span id="welcomeName">Thành viên</span>! 👋</h2>
+          <p>Chào mừng bạn đến với hệ thống quản lý câu lạc bộ</p>
+          <div class="mt-1" id="memberDepartment"></div>
+        </div>
+        
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">📅</div>
+            <div class="stat-info">
+              <h3 id="myRegistrations">0</h3>
+              <p>Đăng ký hoạt động</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <h3 id="attendanceRate">0%</h3>
+              <p>Tỷ lệ chuyên cần</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tỷ lệ chuyên cần</h3>
+          </div>
+          <div class="attendance-progress">
+            <div class="d-flex justify-between">
+              <span class="text-muted">Tỷ lệ tham gia</span>
+              <span class="font-bold" id="attendanceRateLabel">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="attendanceProgress" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="stat-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Sự kiện sắp tới</h3>
+              <a href="events.html" class="btn btn-sm btn-outline">Xem tất cả</a>
+            </div>
+            <ul class="activity-list" id="upcomingEvents"></ul>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Thông báo mới</h3>
+              <a href="announcements.html" class="btn btn-sm btn-outline">Xem tất cả</a>
+            </div>
+            <ul class="activity-list" id="recentAnnouncements"></ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="../js/mock-api.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/member.js"></script>
+</body>
+</html>

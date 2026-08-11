@@ -1,0 +1,109 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuyên cần - Thành viên</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/member.css">
+</head>
+<body>
+  <div class="member-layout">
+    <aside class="member-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🎓</div>
+        <div class="sidebar-title">Quản lý CLB<small>MEMBER</small></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Menu</div>
+        <a href="dashboard.html" class="nav-item"><span class="nav-icon">📊</span>Dashboard</a>
+        <a href="profile.html" class="nav-item"><span class="nav-icon">👤</span>Hồ sơ</a>
+        <a href="events.html" class="nav-item"><span class="nav-icon">📅</span>Sự kiện</a>
+        <a href="attendance.html" class="nav-item"><span class="nav-icon">✅</span>Điểm danh</a>
+        <a href="attendance-history.html" class="nav-item active"><span class="nav-icon">📊</span>Chuyên cần</a>
+        <a href="announcements.html" class="nav-item"><span class="nav-icon">📢</span>Thông báo</a>
+        <a href="change-password.html" class="nav-item"><span class="nav-icon">🔒</span>Đổi mật khẩu</a>
+        <div class="nav-section">Ban của tôi</div>
+        <a href="departments/academic.html" class="nav-item"><span class="nav-icon">🏢</span>Ban Học thuật</a>
+        <a href="departments/operation.html" class="nav-item"><span class="nav-icon">🏢</span>Ban Vận hành</a>
+        <a href="departments/advisory.html" class="nav-item"><span class="nav-icon">🏢</span>Ban Cố vấn</a>
+        <a href="departments/executive.html" class="nav-item"><span class="nav-icon">🏢</span>Ban Chủ nhiệm</a>
+      </nav>
+    </aside>
+    
+    <main class="member-main">
+      <header class="member-topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle">☰</button>
+          <span class="topbar-title">Chuyên cần</span>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar">M</div>
+            <div class="user-info"><div class="name">Thành viên</div><div class="role">MEMBER</div></div>
+            <div class="user-dropdown">
+              <a href="profile.html">Hồ sơ</a>
+              <a href="#" id="logoutBtn" class="danger">Đăng xuất</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="member-content">
+        <div id="alertContainer"></div>
+        <div id="loadingContainer"></div>
+        
+        <div class="page-header">
+          <div>
+            <h1>Lịch sử chuyên cần</h1>
+            <p>Xem lịch sử điểm danh và tỷ lệ chuyên cần của bạn</p>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Tỷ lệ chuyên cần</h3>
+          </div>
+          <div class="attendance-progress">
+            <div class="d-flex justify-between">
+              <span class="text-muted">Tỷ lệ tham gia</span>
+              <span class="font-bold" id="attendanceRateLabel">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="attendanceProgress" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="attendanceHistory"></div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="../js/mock-api.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/member.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Auth.requireMember()) return;
+      
+      // Load attendance rate
+      try {
+        const rate = await API.Attendance.getRate();
+        const percentage = rate.rate || 0;
+        document.getElementById('attendanceRateLabel').textContent = percentage + '%';
+        const progressFill = document.getElementById('attendanceProgress');
+        progressFill.style.width = percentage + '%';
+        if (percentage < 50) progressFill.classList.add('danger');
+        else if (percentage < 75) progressFill.classList.add('warning');
+      } catch (e) {
+        // Rate may not be available
+      }
+      
+      // Load attendance history
+      loadMemberAttendance();
+    });
+  </script>
+</body>
+</html>

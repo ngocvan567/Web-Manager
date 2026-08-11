@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý tài khoản - Admin</title>
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">🎓</div>
+        <div class="sidebar-title">
+          Quản lý CLB
+          <small>ADMIN</small>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Tổng quan</div>
+        <a href="dashboard.html" class="nav-item">
+          <span class="nav-icon">📊</span>
+          Dashboard
+        </a>
+        <div class="nav-section">Quản lý</div>
+        <a href="users.html" class="nav-item active">
+          <span class="nav-icon">👤</span>
+          Tài khoản
+        </a>
+        <a href="members.html" class="nav-item">
+          <span class="nav-icon">👥</span>
+          Thành viên
+        </a>
+        <a href="departments.html" class="nav-item">
+          <span class="nav-icon">🏢</span>
+          Ban
+        </a>
+        <a href="events.html" class="nav-item">
+          <span class="nav-icon">📅</span>
+          Sự kiện
+        </a>
+        <a href="attendance.html" class="nav-item">
+          <span class="nav-icon">✅</span>
+          Điểm danh
+        </a>
+        <a href="announcements.html" class="nav-item">
+          <span class="nav-icon">📢</span>
+          Thông báo
+        </a>
+        <a href="registrations.html" class="nav-item">
+          <span class="nav-icon">📝</span>
+          Đăng ký hoạt động
+        </a>
+        <div class="nav-section">Hệ thống</div>
+        <a href="statistics.html" class="nav-item">
+          <span class="nav-icon">📊</span>
+          Thống kê
+        </a>
+        <a href="storage.html" class="nav-item">
+          <span class="nav-icon">📁</span>
+          Kho lưu trữ
+        </a>
+        <a href="settings.html" class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          Cài đặt
+        </a>
+      </nav>
+    </aside>
+    
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <button class="menu-toggle">☰</button>
+          <span class="topbar-title">Quản lý tài khoản</span>
+        </div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="user-avatar">A</div>
+            <div class="user-info">
+              <div class="name">Admin</div>
+              <div class="role">ADMIN</div>
+            </div>
+            <div class="user-dropdown">
+              <a href="settings.html">Cài đặt</a>
+              <a href="#" id="logoutBtn" class="danger">Đăng xuất</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="admin-content">
+        <div id="alertContainer"></div>
+        <div id="loadingContainer"></div>
+        
+        <div class="page-header">
+          <div>
+            <h1>Quản lý tài khoản</h1>
+            <p>Xem, thêm, sửa, xóa và phân quyền tài khoản</p>
+          </div>
+          <button class="btn btn-primary" id="addUserBtn">+ Thêm tài khoản</button>
+        </div>
+        
+        <div class="search-bar">
+          <input type="text" class="form-control" id="searchUser" placeholder="Tìm kiếm theo MSSV, tên, email...">
+          <select class="form-control" id="filterRole" style="max-width: 150px;">
+            <option value="">Tất cả Role</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="MEMBER">MEMBER</option>
+          </select>
+          <select class="form-control" id="filterStatus" style="max-width: 150px;">
+            <option value="">Tất cả Status</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="LOCKED">LOCKED</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+        </div>
+        
+        <div id="usersTable"></div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- User Modal -->
+  <div class="modal-overlay" id="userModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="userModalTitle">Chi tiết tài khoản</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body" id="userModalBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="document.getElementById('userModal').classList.remove('active')">Đóng</button>
+        <button class="btn btn-primary" id="userModalSubmit">Lưu</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="../js/mock-api.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/users.js"></script>
+</body>
+</html>
