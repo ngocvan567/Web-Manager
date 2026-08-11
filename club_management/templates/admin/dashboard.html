@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADMIN Portal - Quản Lý Câu Lạc Bộ</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .text-success { color: #10b981; font-weight: bold; }
+        .text-danger { color: #ef4444; font-weight: bold; }
+        .action-btns { display: flex; gap: 5px; }
+        select.form-control { padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <div class="sidebar">
+            <h2>ADMIN PORTAL</h2>
+            <nav>
+                <a href="#" id="menuUsers" class="active" onclick="switchTab('users')">👥 Quản Lý Tài Khoản</a>
+                <a href="#" id="menuEvents" onclick="switchTab('events')">📅 Quản Lý Sự Kiện</a>
+                <a href="#" id="menuDepartments" onclick="switchTab('departments')">🏢 Quản Lý Các Ban</a>
+                <a href="#" id="menuFinance" onclick="switchTab('finance')">💰 Quản Lý Thu Chi</a>
+                <a href="#" onclick="logout()" style="color:#ef4444; margin-top:40px;">🚪 Đăng xuất</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Hệ Thống Quản Trị CLB</h1>
+                    <p style="color:#64748b; font-size:0.9rem;">Toàn quyền phân vai trò, chuyển ban và kiểm soát quỹ thu chi</p>
+                </div>
+                <span class="badge badge-active">ADMIN (ALL PERMISSIONS)</span>
+            </div>
+
+            <!-- TAB 1: QUẢN LÝ TÀI KHOẢN -->
+            <div id="tabUsers" class="tab-content active">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Danh Sách Thành Viên & Phân Quyền</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>MSSV</th>
+                                <th>Họ và Tên</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Ban (Department)</th>
+                                <th>Trạng Thái</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="8" style="text-align:center;">Đang tải danh sách tài khoản...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: QUẢN LÝ SỰ KIỆN -->
+            <div id="tabEvents" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Quản Lý Sự Kiện CLB</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên Sự Kiện</th>
+                                <th>Mô Tả</th>
+                                <th>Địa Điểm</th>
+                                <th>Bắt Đầu</th>
+                                <th>Kết Thúc</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <tr><td colspan="6" style="text-align:center;">Đang tải sự kiện...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: QUẢN LÝ CÁC BAN -->
+            <div id="tabDepartments" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Danh Sách Các Ban Trong CLB</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID Ban</th>
+                                <th>Tên Ban</th>
+                                <th>Mô Tả Chức Năng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departmentsTableBody">
+                            <tr><td colspan="3" style="text-align:center;">Đang tải danh sách ban...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 4: QUẢN LÝ THU CHI -->
+            <div id="tabFinance" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Quản Lý Quỹ & Thu Chi CLB</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã GD</th>
+                                <th>Nội Dung Thu / Chi</th>
+                                <th>Loại</th>
+                                <th>Số Tiền</th>
+                                <th>Ngày Thực Hiện</th>
+                            </tr>
+                        </thead>
+                        <tbody id="financeTableBody">
+                            <tr><td colspan="5" style="text-align:center;">Đang tải dữ liệu thu chi...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script>
+        let globalDepartments = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadDepartmentsData();
+            loadUsers();
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar nav a').forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'users') {
+                document.getElementById('tabUsers').classList.add('active');
+                document.getElementById('menuUsers').classList.add('active');
+                loadUsers();
+            } else if (tabName === 'events') {
+                document.getElementById('tabEvents').classList.add('active');
+                document.getElementById('menuEvents').classList.add('active');
+                loadEvents();
+            } else if (tabName === 'departments') {
+                document.getElementById('tabDepartments').classList.add('active');
+                document.getElementById('menuDepartments').classList.add('active');
+                loadDepartments();
+            } else if (tabName === 'finance') {
+                document.getElementById('tabFinance').classList.add('active');
+                document.getElementById('menuFinance').classList.add('active');
+                loadFinance();
+            }
+        }
+
+        async function loadDepartmentsData() {
+            try {
+                const res = await API.request('/api/departments');
+                if (res && res.data) globalDepartments = res.data;
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadUsers() {
+            try {
+                if (globalDepartments.length === 0) await loadDepartmentsData();
+                const res = await API.request('/api/users');
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Không có tài khoản nào.</td></tr>';
+                    return;
+                }
+
+                res.data.forEach(u => {
+                    const tr = document.createElement('tr');
+                    const isActive = String(u.status).toUpperCase() === 'ACTIVE';
+
+                    let deptOptions = '';
+                    globalDepartments.forEach(d => {
+                        const selected = d.department_id === u.department_id ? 'selected' : '';
+                        deptOptions += `<option value="${d.department_id}" ${selected}>${d.department_name}</option>`;
+                    });
+
+                    tr.innerHTML = `
+                        <td>${u.id}</td>
+                        <td>${u.mssv || 'N/A'}</td>
+                        <td><strong>${u.full_name}</strong></td>
+                        <td>${u.email}</td>
+                        <td><span class="badge ${u.role === 'ADMIN' ? 'badge-active' : ''}">${u.role}</span></td>
+                        <td>
+                            <select class="form-control" onchange="changeDepartment(${u.id}, this.value)">
+                                ${deptOptions}
+                            </select>
+                        </td>
+                        <td><span class="badge ${isActive ? 'badge-active' : 'badge-blocked'}">${u.status || 'ACTIVE'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn btn-sm btn-primary" onclick="toggleRole(${u.id}, '${u.role}')">Đổi Role</button>
+                                <button class="btn btn-sm ${isActive ? 'btn-danger' : 'btn-success'}" onclick="toggleStatus(${u.id}, '${u.status}')">
+                                    ${isActive ? 'Khóa' : 'Mở'}
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function changeDepartment(userId, deptId) {
+            const res = await API.request(`/api/members/${userId}/department`, {
+                method: 'PUT',
+                body: JSON.stringify({ department_id: deptId })
+            });
+            if (res && res.message) alert(res.message);
+        }
+
+        async function toggleRole(userId, currentRole) {
+            const newRole = currentRole === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+            if (!confirm(`Bạn có chắc muốn đổi quyền thành ${newRole}?`)) return;
+            const res = await API.request(`/api/users/${userId}/role`, {
+                method: 'PUT',
+                body: JSON.stringify({ role: newRole })
+            });
+            if (res) { alert(res.message); loadUsers(); }
+        }
+
+        async function toggleStatus(userId, currentStatus) {
+            const newStatus = String(currentStatus).toUpperCase() === 'ACTIVE' ? 'BLOCKED' : 'ACTIVE';
+            const res = await API.request(`/api/users/${userId}/status`, {
+                method: 'PUT',
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (res) { alert(res.message); loadUsers(); }
+        }
+
+        async function loadEvents() {
+            try {
+                const res = await API.request('/api/events');
+                const tbody = document.getElementById('eventsTableBody');
+                tbody.innerHTML = '';
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Chưa có sự kiện nào.</td></tr>';
+                    return;
+                }
+                res.data.forEach(ev => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${ev.event_id || ev.id}</td>
+                        <td><strong>${ev.title}</strong></td>
+                        <td>${ev.description || ''}</td>
+                        <td>${ev.location}</td>
+                        <td>${new Date(ev.start_time).toLocaleString('vi-VN')}</td>
+                        <td>${new Date(ev.end_time).toLocaleString('vi-VN')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadDepartments() {
+            try {
+                const res = await API.request('/api/departments');
+                const tbody = document.getElementById('departmentsTableBody');
+                tbody.innerHTML = '';
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">Chưa có dữ liệu các ban.</td></tr>';
+                    return;
+                }
+                res.data.forEach(d => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${d.department_id}</td>
+                        <td><strong>${d.department_name}</strong></td>
+                        <td>${d.description || 'Chưa có mô tả'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadFinance() {
+            try {
+                const res = await API.request('/api/finances');
+                const tbody = document.getElementById('financeTableBody');
+                tbody.innerHTML = '';
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Chưa có dữ liệu thu chi.</td></tr>';
+                    return;
+                }
+                res.data.forEach(f => {
+                    const tr = document.createElement('tr');
+                    const isIncome = String(f.type).toUpperCase() === 'INCOME' || String(f.type).toUpperCase() === 'THU';
+                    tr.innerHTML = `
+                        <td>#${f.record_id || f.id}</td>
+                        <td><strong>${f.description}</strong></td>
+                        <td><span class="${isIncome ? 'text-success' : 'text-danger'}">${isIncome ? 'Thu' : 'Chi'}</span></td>
+                        <td class="${isIncome ? 'text-success' : 'text-danger'}">${isIncome ? '+' : '-'}${Number(f.amount).toLocaleString('vi-VN')} VNĐ</td>
+                        <td>${new Date(f.created_at).toLocaleString('vi-VN')}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>

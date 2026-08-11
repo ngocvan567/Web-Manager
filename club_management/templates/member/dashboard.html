@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEMBER Portal - Câu Lạc Bộ</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .profile-card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color, #ccc); margin-bottom: 20px; }
+        .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .profile-item label { font-size: 0.85rem; color: #64748b; display: block; }
+        .profile-item span { font-size: 1.1rem; font-weight: 600; color: #1e293b; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <div class="sidebar">
+            <h2>MEMBER PORTAL</h2>
+            <nav>
+                <a href="#" id="menuProfile" class="active" onclick="switchTab('profile')">👤 Thông Tin Cá Nhân</a>
+                <a href="#" id="menuEvents" onclick="switchTab('events')">📅 Sự Kiện & Điểm Danh</a>
+                <a href="#" id="menuHistory" onclick="switchTab('history')">📜 Lịch Sử Điểm Danh</a>
+                <a href="#" onclick="logout()" style="color:#ef4444; margin-top:40px;">🚪 Đăng xuất</a>
+            </nav>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <div>
+                    <h1>Hệ Thống Thành Viên CLB</h1>
+                    <p style="color:#64748b; font-size:0.9rem;">Xem thông tin cá nhân, tham gia sự kiện và thực hiện điểm danh</p>
+                </div>
+                <span class="badge badge-active">ROLE: MEMBER</span>
+            </div>
+
+            <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
+            <div id="tabProfile" class="tab-content active">
+                <div class="profile-card">
+                    <h3 style="color:var(--primary, #2563eb); border-bottom:1px solid #eee; padding-bottom:10px;">Hồ Sơ Thành Viên</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item"><label>Họ và Tên</label><span id="meName">---</span></div>
+                        <div class="profile-item"><label>Mã Số Sinh Viên</label><span id="meMssv">---</span></div>
+                        <div class="profile-item"><label>Email</label><span id="meEmail">---</span></div>
+                        <div class="profile-item"><label>Khóa Học</label><span id="meCourse">---</span></div>
+                        <div class="profile-item"><label>Ban Thuộc Về</label><span id="meDept" style="color:#2563eb;">---</span></div>
+                        <div class="profile-item"><label>Chức Vụ</label><span id="mePos">---</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: SỰ KIỆN & ĐĂNG KÝ -->
+            <div id="tabEvents" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Danh Sách Sự Kiện Đang Mở</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tên Sự Kiện</th>
+                                <th>Địa Điểm</th>
+                                <th>Thời Gian Bắt Đầu</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="eventsTableBody">
+                            <tr><td colspan="4" style="text-align:center;">Đang tải sự kiện...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: LỊCH SỬ ĐIỂM DANH -->
+            <div id="tabHistory" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Lịch Sử Đã Điểm Danh / Đăng Ký</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tên Sự Kiện</th>
+                                <th>Địa Điểm</th>
+                                <th>Thời Gian Sự Kiện</th>
+                                <th>Trạng Thái</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="4" style="text-align:center;">Đang tải lịch sử...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+        });
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar nav a').forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'profile') {
+                document.getElementById('tabProfile').classList.add('active');
+                document.getElementById('menuProfile').classList.add('active');
+                loadProfile();
+            } else if (tabName === 'events') {
+                document.getElementById('tabEvents').classList.add('active');
+                document.getElementById('menuEvents').classList.add('active');
+                loadEvents();
+            } else if (tabName === 'history') {
+                document.getElementById('tabHistory').classList.add('active');
+                document.getElementById('menuHistory').classList.add('active');
+                loadHistory();
+            }
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await API.request('/api/me');
+                if (res && res.user) {
+                    const u = res.user;
+                    document.getElementById('meName').innerText = u.full_name || 'N/A';
+                    document.getElementById('meMssv').innerText = u.mssv || 'N/A';
+                    document.getElementById('meEmail').innerText = u.email || 'N/A';
+                    document.getElementById('meCourse').innerText = u.course || 'K19';
+                    document.getElementById('meDept').innerText = u.department_name || 'Chưa Phân Ban';
+                    document.getElementById('mePos').innerText = u.position || 'Thành Viên';
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadEvents() {
+            try {
+                const res = await API.request('/api/events');
+                const tbody = document.getElementById('eventsTableBody');
+                tbody.innerHTML = '';
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Hiện chưa có sự kiện nào.</td></tr>';
+                    return;
+                }
+                res.data.forEach(ev => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${ev.title}</strong></td>
+                        <td>${ev.location}</td>
+                        <td>${new Date(ev.start_time).toLocaleString('vi-VN')}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="registerEvent(${ev.event_id})">📌 Đăng Ký Tham Gia</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        async function registerEvent(eventId) {
+            const res = await API.request('/api/events/register', { 
+                method: 'POST', 
+                body: JSON.stringify({ event_id: eventId }) 
+            });
+            if (res) {
+                alert(res.message);
+                loadEvents();
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await API.request('/api/attendance/my-history');
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '';
+                if (!res.data || res.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Bạn chưa tham gia sự kiện nào.</td></tr>';
+                    return;
+                }
+                res.data.forEach(h => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${h.title}</strong></td>
+                        <td>${h.location}</td>
+                        <td>${new Date(h.start_time).toLocaleString('vi-VN')}</td>
+                        <td><span class="badge badge-active">${h.attendance_status || 'Registered'}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) { console.error(err); }
+        }
+    </script>
+</body>
+</html>
