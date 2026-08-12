@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEMBER Portal - Câu Lạc Bộ</title>
+    <title>MEMBER SRC - Câu Lạc Bộ</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         .tab-content { display: none; }
@@ -12,24 +12,64 @@
         .profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
         .profile-item label { font-size: 0.85rem; color: #64748b; display: block; }
         .profile-item span { font-size: 1.1rem; font-weight: 600; color: #1e293b; }
+        .action-btns { display: flex; gap: 5px; align-items: center; }
+        
+        /* Style giao diện danh sách thông báo */
+        .announcement-card {
+            background: #ffffff;
+            border-left: 4px solid #2563eb;
+            padding: 16px 20px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .announcement-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .announcement-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .announcement-date {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .announcement-content {
+            color: #334155;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        .announcement-author {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            color: #2563eb;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard-layout">
         <div class="sidebar">
-            <h2>MEMBER PORTAL</h2>
+            <h2>MEMBER SRC</h2>
             <nav>
                 <a href="#" id="menuProfile" class="active" onclick="switchTab('profile')">👤 Thông Tin Cá Nhân</a>
-                <a href="#" id="menuEvents" onclick="switchTab('events')">📅 Sự Kiện & Điểm Danh</a>
-                <a href="#" id="menuHistory" onclick="switchTab('history')">📜 Lịch Sử Điểm Danh</a>
+                <a href="#" id="menuAnnouncements" onclick="switchTab('announcements')">📢 Thông Báo</a>
+                <a href="#" id="menuEvents" onclick="switchTab('events')">📅 Sự Kiện & Đăng Ký</a>
+                <a href="#" id="menuHistory" onclick="switchTab('history')">📜 Lịch Sử Đăng Ký / Điểm Danh</a>
                 <a href="#" onclick="logout()" style="color:#ef4444; margin-top:40px;">🚪 Đăng xuất</a>
             </nav>
         </div>
+        
         <div class="main-content">
             <div class="header">
                 <div>
                     <h1>Hệ Thống Thành Viên CLB</h1>
-                    <p style="color:#64748b; font-size:0.9rem;">Xem thông tin cá nhân, tham gia sự kiện và thực hiện điểm danh</p>
+                    <p style="color:#64748b; font-size:0.9rem;">Xem thông tin cá nhân, đọc thông báo, tham gia sự kiện và theo dõi lịch sử hoạt động</p>
                 </div>
                 <span class="badge badge-active">ROLE: MEMBER</span>
             </div>
@@ -49,6 +89,14 @@
                 </div>
             </div>
 
+            <!-- TAB MỚI: THÔNG BÁO TỪ BAN CHỦ NHIỆM -->
+            <div id="tabAnnouncements" class="tab-content">
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">📢 Thông Báo Mới Nhất Từ Ban Chủ Nhiệm</h3>
+                <div id="announcementsList">
+                    <p style="text-align:center; color:#64748b;">Đang tải thông báo...</p>
+                </div>
+            </div>
+
             <!-- TAB 2: SỰ KIỆN & ĐĂNG KÝ -->
             <div id="tabEvents" class="tab-content">
                 <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Danh Sách Sự Kiện Đang Mở</h3>
@@ -57,21 +105,22 @@
                         <thead>
                             <tr>
                                 <th>Tên Sự Kiện</th>
+                                <th>Mô Tả</th>
                                 <th>Địa Điểm</th>
                                 <th>Thời Gian Bắt Đầu</th>
                                 <th>Hành Động</th>
                             </tr>
                         </thead>
                         <tbody id="eventsTableBody">
-                            <tr><td colspan="4" style="text-align:center;">Đang tải sự kiện...</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">Đang tải sự kiện...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- TAB 3: LỊCH SỬ ĐIỂM DANH -->
+            <!-- TAB 3: LỊCH SỬ ĐIỂM DANH / ĐĂNG KÝ -->
             <div id="tabHistory" class="tab-content">
-                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Lịch Sử Đã Điểm Danh / Đăng Ký</h3>
+                <h3 style="color:var(--primary, #2563eb); margin-bottom:15px;">Lịch Sử Đã Đăng Ký & Điểm Danh</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -79,11 +128,12 @@
                                 <th>Tên Sự Kiện</th>
                                 <th>Địa Điểm</th>
                                 <th>Thời Gian Sự Kiện</th>
+                                <th>Thời Gian Đăng Ký</th>
                                 <th>Trạng Thái</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <tr><td colspan="4" style="text-align:center;">Đang tải lịch sử...</td></tr>
+                            <tr><td colspan="5" style="text-align:center;">Đang tải lịch sử...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -107,6 +157,10 @@
                 document.getElementById('tabProfile').classList.add('active');
                 document.getElementById('menuProfile').classList.add('active');
                 loadProfile();
+            } else if (tabName === 'announcements') {
+                document.getElementById('tabAnnouncements').classList.add('active');
+                document.getElementById('menuAnnouncements').classList.add('active');
+                loadAnnouncements();
             } else if (tabName === 'events') {
                 document.getElementById('tabEvents').classList.add('active');
                 document.getElementById('menuEvents').classList.add('active');
@@ -133,24 +187,70 @@
             } catch (err) { console.error(err); }
         }
 
+        async function loadAnnouncements() {
+            try {
+                const res = await API.request('/api/announcements');
+                const container = document.getElementById('announcementsList');
+                container.innerHTML = '';
+
+                if (!res.data || res.data.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#64748b; padding:20px;">Chưa có thông báo nào từ Ban Chủ Nhiệm.</p>';
+                    return;
+                }
+
+                res.data.forEach(item => {
+                    const pubDate = item.created_at ? new Date(item.created_at).toLocaleString('vi-VN') : 'N/A';
+                    const card = document.createElement('div');
+                    card.className = 'announcement-card';
+                    card.innerHTML = `
+                        <div class="announcement-header">
+                            <div class="announcement-title">📌 ${item.title}</div>
+                            <div class="announcement-date">🕒 ${pubDate}</div>
+                        </div>
+                        <div class="announcement-content">${item.content}</div>
+                        <div class="announcement-author">✍️ Đăng bởi: ${item.created_by_name || 'Ban Chủ Nhiệm'}</div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) { console.error(err); }
+        }
+
         async function loadEvents() {
             try {
                 const res = await API.request('/api/events');
                 const tbody = document.getElementById('eventsTableBody');
                 tbody.innerHTML = '';
                 if (!res.data || res.data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Hiện chưa có sự kiện nào.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Hiện chưa có sự kiện nào.</td></tr>';
                     return;
                 }
+
                 res.data.forEach(ev => {
                     const tr = document.createElement('tr');
+                    const eventId = ev.event_id || ev.id;
+                    const isRegistered = ev.attendance_status === 'Registered' || ev.attendance_status === 'Present';
+                    const isPresent = ev.attendance_status === 'Present';
+
+                    let actionHtml = '';
+                    if (!isRegistered) {
+                        actionHtml = `<button class="btn btn-sm btn-primary" onclick="registerEvent(${eventId})">📌 Đăng Ký Tham Gia</button>`;
+                    } else if (isPresent) {
+                        actionHtml = `<span class="badge badge-active">✅ Đã Điểm Danh</span>`;
+                    } else {
+                        actionHtml = `
+                            <div class="action-btns">
+                                <span class="badge badge-active" style="background:#e0e7ff; color:#3730a3;">✔️ Đã Đăng Ký</span>
+                                <button class="btn btn-sm btn-success" onclick="checkinEvent(${eventId})">📍 Điểm Danh</button>
+                            </div>
+                        `;
+                    }
+
                     tr.innerHTML = `
                         <td><strong>${ev.title}</strong></td>
-                        <td>${ev.location}</td>
+                        <td>${ev.description || 'Chưa có mô tả'}</td>
+                        <td>${ev.location || 'Chưa cập nhật'}</td>
                         <td>${new Date(ev.start_time).toLocaleString('vi-VN')}</td>
-                        <td>
-                            <button class="btn btn-sm btn-primary" onclick="registerEvent(${ev.event_id})">📌 Đăng Ký Tham Gia</button>
-                        </td>
+                        <td>${actionHtml}</td>
                     `;
                     tbody.appendChild(tr);
                 });
@@ -162,7 +262,18 @@
                 method: 'POST', 
                 body: JSON.stringify({ event_id: eventId }) 
             });
-            if (res) {
+            if (res && res.status === 'success') {
+                alert(res.message);
+                loadEvents();
+            }
+        }
+
+        async function checkinEvent(eventId) {
+            const res = await API.request('/api/events/checkin', { 
+                method: 'POST', 
+                body: JSON.stringify({ event_id: eventId }) 
+            });
+            if (res && res.status === 'success') {
                 alert(res.message);
                 loadEvents();
             }
@@ -174,15 +285,19 @@
                 const tbody = document.getElementById('historyTableBody');
                 tbody.innerHTML = '';
                 if (!res.data || res.data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">Bạn chưa tham gia sự kiện nào.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Bạn chưa đăng ký sự kiện nào.</td></tr>';
                     return;
                 }
                 res.data.forEach(h => {
                     const tr = document.createElement('tr');
+                    const regDate = h.registered_at ? new Date(h.registered_at).toLocaleString('vi-VN') : 'N/A';
+                    const eventDate = h.start_time ? new Date(h.start_time).toLocaleString('vi-VN') : 'N/A';
+                    
                     tr.innerHTML = `
                         <td><strong>${h.title}</strong></td>
-                        <td>${h.location}</td>
-                        <td>${new Date(h.start_time).toLocaleString('vi-VN')}</td>
+                        <td>${h.location || 'N/A'}</td>
+                        <td>${eventDate}</td>
+                        <td>${regDate}</td>
                         <td><span class="badge badge-active">${h.attendance_status || 'Registered'}</span></td>
                     `;
                     tbody.appendChild(tr);
